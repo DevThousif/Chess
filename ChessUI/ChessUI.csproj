@@ -1,0 +1,47 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <Nullable>disable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Assets\bB.png" />
+    <None Remove="Assets\bK.png" />
+    <None Remove="Assets\bN.png" />
+    <None Remove="Assets\board.png" />
+    <None Remove="Assets\bp.png" />
+    <None Remove="Assets\bQ.png" />
+    <None Remove="Assets\bR.png" />
+    <None Remove="Assets\wB.png" />
+    <None Remove="Assets\wK.png" />
+    <None Remove="Assets\wN.png" />
+    <None Remove="Assets\wp.png" />
+    <None Remove="Assets\wQ.png" />
+    <None Remove="Assets\wR.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ChessLogic\ChessLogic.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\bB.png" />
+    <Resource Include="Assets\bK.png" />
+    <Resource Include="Assets\bN.png" />
+    <Resource Include="Assets\board.png" />
+    <Resource Include="Assets\bp.png" />
+    <Resource Include="Assets\bQ.png" />
+    <Resource Include="Assets\bR.png" />
+    <Resource Include="Assets\wB.png" />
+    <Resource Include="Assets\wK.png" />
+    <Resource Include="Assets\wN.png" />
+    <Resource Include="Assets\wp.png" />
+    <Resource Include="Assets\wQ.png" />
+    <Resource Include="Assets\wR.png" />
+  </ItemGroup>
+
+</Project>
