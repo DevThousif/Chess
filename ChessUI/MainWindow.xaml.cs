@@ -93,6 +93,9 @@ namespace ChessUI
             double squareSize = BoardGrid.ActualWidth / 8;
             int row = (int)(point.Y / squareSize);
             int col = (int)(point.X / squareSize);
+            // clamp to board bounds to avoid IndexOutOfRange when clicking near edges
+            row = Math.Max(0, Math.Min(7, row));
+            col = Math.Max(0, Math.Min(7, col));
             return new Position(row, col);
         }
 

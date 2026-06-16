@@ -23,6 +23,8 @@ namespace ChessLogic
             board[ToPos] = piece;  // Move the piece to the new position
             board[FromPos] = null;  // Clear the old position
             piece.HasMoved = true;  // Mark the piece as having moved
+            // Clear any en-passant target since this was not a double pawn move
+            board.EnPassantTarget = null;
         }
 
     }

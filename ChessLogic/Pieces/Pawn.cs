@@ -76,7 +76,7 @@ namespace ChessLogic
                 // Allow double move on first move
                 if (!HasMoved && CanMoveTo(twoMovesPos, board))
                 {
-                    yield return new NormalMove(from, twoMovesPos);
+                    yield return new DoublePawnMove(from, twoMovesPos);
                 }
             }
         }
@@ -99,6 +99,15 @@ namespace ChessLogic
                     else
                     {
                         yield return new NormalMove(from, to);
+                    }
+                }
+                else
+                {
+                    // check en-passant capture
+                    Position enPassant = board.EnPassantTarget;
+                    if (enPassant != null && enPassant.Row == to.Row && enPassant.Column == to.Column)
+                    {
+                        yield return new EnPassantMove(from, to);
                     }
                 }
             }

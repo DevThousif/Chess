@@ -10,6 +10,8 @@ namespace ChessLogic
     public class Board
     {
         private readonly Piece[,] pieces = new Piece[8, 8];
+        // Square that can be captured en-passant. Null if none.
+        public Position EnPassantTarget { get; set; }
 
         public Piece this[int row, int col]
         {
@@ -99,8 +101,111 @@ namespace ChessLogic
             {
                 copy[pos] = this[pos].Copy();
             }
+            // copy en-passant target as well
+            if (this.EnPassantTarget != null)
+            {
+                copy.EnPassantTarget = new Position(this.EnPassantTarget.Row, this.EnPassantTarget.Column);
+            }
             return copy;
 
+        }
+
+        // Produce a compact string key that represents the board piece placement and moved flags.
+        // This includes piece type and color and whether the piece has moved (to capture castling-related differences).
+        public string GetBoardKey()
+        {
+            var sb = new System.Text.StringBuilder(8 * 8 * 2 + 10);
+            for (int r = 0; r < 8; r++)
+            {
+                for (int c = 0; c < 8; c++)
+                {
+                    Position pos = new Position(r, c);
+                    Piece piece = this[pos];
+                    if (piece == null)
+                    {
+                        sb.Append("..");
+                    }
+                    else
+                    {
+                        char ch = piece.Type switch
+                        {
+                            PieceType.Pawn => 'p',
+                            PieceType.Knight => 'n',
+                            PieceType.Bishop => 'b',
+                            PieceType.Rook => 'r',
+                            PieceType.Queen => 'q',
+                            PieceType.King => 'k',
+                            _ => '?'
+                        };
+                        if (piece.Color == Player.White) ch = char.ToUpperInvariant(ch);
+                        sb.Append(ch);
+                        sb.Append(piece.HasMoved ? '1' : '0');
+                    }
+                }
+            }
+            return sb.ToString();
+        }
+
+        // Determine if a square is attacked by any piece of the given player.
+        public bool IsSquareAttacked(Position square, Player byPlayer)
+        {
+            // Pawn attacks
+            int dir = (byPlayer == Player.White) ? -1 : 1; // white pawns attack north (-1)
+            Position p1 = new Position(square.Row - dir, square.Column - 1);
+            Position p2 = new Position(square.Row - dir, square.Column + 1);
+            if (IsInside(p1) && !IsEmpty(p1) && this[p1].Type == PieceType.Pawn && this[p1].Color == byPlayer) return true;
+            if (IsInside(p2) && !IsEmpty(p2) && this[p2].Type == PieceType.Pawn && this[p2].Color == byPlayer) return true;
+
+            // Knight attacks
+            int[] kdr = new int[] { -2, -1, 1, 2 };
+            int[] kdc = new int[] { -2, -1, 1, 2 };
+            foreach (int dr in kdr)
+            {
+                foreach (int dc in kdc)
+                {
+                    if (Math.Abs(dr) == Math.Abs(dc)) continue;
+                    Position kp = new Position(square.Row + dr, square.Column + dc);
+                    if (IsInside(kp) && !IsEmpty(kp) && this[kp].Type == PieceType.Knight && this[kp].Color == byPlayer) return true;
+                }
+            }
+
+            // King adjacent
+            for (int dr = -1; dr <= 1; dr++)
+            {
+                for (int dc = -1; dc <= 1; dc++)
+                {
+                    if (dr == 0 && dc == 0) continue;
+                    Position kp = new Position(square.Row + dr, square.Column + dc);
+                    if (IsInside(kp) && !IsEmpty(kp) && this[kp].Type == PieceType.King && this[kp].Color == byPlayer) return true;
+                }
+            }
+
+            // Sliding pieces: rook/queen (orthogonal), bishop/queen (diagonal)
+            Direction[] orth = new Direction[] { Direction.North, Direction.South, Direction.East, Direction.West };
+            Direction[] diag = new Direction[] { Direction.NorthEast, Direction.NorthWest, Direction.SouthEast, Direction.SouthWest };
+
+            foreach (Direction d in orth)
+            {
+                for (Position p = square + d; IsInside(p); p += d)
+                {
+                    if (IsEmpty(p)) continue;
+                    if (this[p].Color != byPlayer) break;
+                    if (this[p].Type == PieceType.Rook || this[p].Type == PieceType.Queen) return true;
+                    break;
+                }
+            }
+            foreach (Direction d in diag)
+            {
+                for (Position p = square + d; IsInside(p); p += d)
+                {
+                    if (IsEmpty(p)) continue;
+                    if (this[p].Color != byPlayer) break;
+                    if (this[p].Type == PieceType.Bishop || this[p].Type == PieceType.Queen) return true;
+                    break;
+                }
+            }
+
+            return false;
         }
     }
 }
